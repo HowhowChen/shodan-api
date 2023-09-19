@@ -35,6 +35,9 @@ class ShodanAPI {
   // 獲取需要的選項
   async searchCustomization(servicePattern_Encode, facets = '') {
     const result = await this.search(servicePattern_Encode, facets)
+
+    if (result.error) return result.error
+
     const dataObject = {}
     dataObject.total = result.total
 
@@ -42,7 +45,7 @@ class ShodanAPI {
       facet = facet.split(':')[0]
       if (facet && result.facets[`${facet}`]) dataObject[`${facet}`] = result.facets[`${facet}`]
     })
-
+    
     // 挑選需要的資訊
     const services = result.matches.map(item => {
       // 彙整CVE
@@ -137,6 +140,14 @@ class ShodanAPI {
     const result = await this.request(url)
     
     return { 'facets': result }
+  }
+
+  // Shodan Protocols API
+  async protocols() {
+    const url = `https://api.shodan.io/shodan/protocols?key=${this.accessToken}`
+    const result = await this.request(url)
+
+    return result
   }
 }
 
