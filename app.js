@@ -151,11 +151,51 @@ class ShodanAPI {
   }
 
   // Shodan MyIP API
-  async myIP() {
+  async myIp() {
     const url = `https://api.shodan.io/tools/myip?key=${this.accessToken}`
     const result = await this.get(url)
 
     return result
+  }
+
+  // Shodan DNS Info
+  async dnsInfo(domain) {
+    const url = `https://api.shodan.io/dns/domain/${domain}?key=${this.accessToken}`
+    const result = await this.get(url)
+
+    return result
+  }
+
+  // Shodan DNS Lookup
+  async dnsLookup(domains) {
+    const url = `https://api.shodan.io/dns/resolve?hostnames=${domains}&key=${this.accessToken}`
+    const result = await this.get(url)
+    
+    const data = []
+    domains.split(',').forEach(domain => {
+      data.push({
+        domain,
+        ip: result[`${domain}`]
+      })
+    })
+
+    return data
+  }
+
+  // Shodan DNS Reverse Lookup
+  async dnsReverseLookup(ips) {
+    const url = `https://api.shodan.io/dns/reverse?ips=${ips}&key=${this.accessToken}`
+    const result = await this.get(url)
+    
+    const data = []
+    ips.split(',').forEach(ip => {
+      data.push({
+        ip,
+        domains: result[`${ip}`]
+      })
+    })
+
+    return data
   }
 }
 
@@ -166,3 +206,12 @@ const servicePattern = ''
 const servicePattern_Encode = encode(servicePattern)
 const facets = '' // e.g. org,country:100
 // shodanAPI.writeFile(servicePattern_Encode, facets)
+
+// const domain = '' // e.g. google.com
+// shodanAPI.dnsInfo(domain)
+
+// const domains = '' // e.g. google.com,facebook.com use Comma-separated list of hostnames
+// shodanAPI.dnsLookup(domains)
+
+// const ips = '' // e.g. 8.8.8.8,1.1.1.1
+// shodanAPI.dnsReverseLookup(ips)
