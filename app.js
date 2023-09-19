@@ -11,7 +11,7 @@ class ShodanAPI {
   }
 
   // 發請求獲取服務資訊
-  async request(url) {
+  async get(url) {
     try {
       const response = await fetch(url, {
         method: "GET",
@@ -29,7 +29,7 @@ class ShodanAPI {
   async search(servicePattern_Encode, facets = '') {
     const url = `https://api.shodan.io/shodan/host/search?key=${this.accessToken}&query=${servicePattern_Encode}&facets=${facets}`
   
-    return this.request(url)
+    return this.get(url)
   }
 
   // 獲取需要的選項
@@ -137,7 +137,7 @@ class ShodanAPI {
   //Shodan Facets API
   async facets() {
     const url = `https://api.shodan.io/shodan/host/search/facets?key=${this.accessToken}`
-    const result = await this.request(url)
+    const result = await this.get(url)
     
     return { 'facets': result }
   }
@@ -145,7 +145,15 @@ class ShodanAPI {
   // Shodan Protocols API
   async protocols() {
     const url = `https://api.shodan.io/shodan/protocols?key=${this.accessToken}`
-    const result = await this.request(url)
+    const result = await this.get(url)
+
+    return result
+  }
+
+  // Shodan MyIP API
+  async myIP() {
+    const url = `https://api.shodan.io/tools/myip?key=${this.accessToken}`
+    const result = await this.get(url)
 
     return result
   }
@@ -157,4 +165,4 @@ const shodanAPI = new ShodanAPI(accessToken)
 const servicePattern = ''
 const servicePattern_Encode = encode(servicePattern)
 const facets = '' // e.g. org,country:100
-shodanAPI.writeFile(servicePattern_Encode, facets)
+// shodanAPI.writeFile(servicePattern_Encode, facets)
