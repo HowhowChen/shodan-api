@@ -28,9 +28,23 @@ class ShodanAPI {
   // Shodan Search API
   async search(servicePattern_Encode, facets = '') {
     try {
-      const url = `https://api.shodan.io/shodan/host/search?key=${this.accessToken}&query=${servicePattern_Encode}&facets=${facets}`
-  
-      return this.get(url)
+      const url = `https://api.shodan.io/shodan/host/search?key=${this.accessToken}&query=${servicePattern_Encode}&facets=${facets}&page=1`
+      const result = await this.get(url)
+      const dataObject = result
+      const defaultCount = 100
+      const totalPage = Math.ceil(result.total / defaultCount)
+
+      if (totalPage > 1) {
+        for (let page = 2; page <= totalPage; page++) {
+          const url = `https://api.shodan.io/shodan/host/search?key=${this.accessToken}&query=${servicePattern_Encode}&facets=${facets}&page=${page}`
+          const nextResult = await this.get(url)
+
+          dataObject.matches.push(...nextResult.matches)
+          await new Promise(resolve => setTimeout(resolve, 3000)) // sleep
+        }
+      }
+
+      return dataObject
     } catch (err) {
       console.log(err)
     }
@@ -265,6 +279,7 @@ const shodanAPI = new ShodanAPI(accessToken)
 const servicePattern = ''
 const servicePattern_Encode = encode(servicePattern)
 const facets = '' // e.g. org,country:100
+// shodanAPI.search(servicePattern_Encode, facets)
 shodanAPI.writeFile(servicePattern_Encode, facets)
 
 // const domain = '' // e.g. google.com
