@@ -4,6 +4,7 @@ if (process.env.NODE_ENV !== 'production') {
 const { encode } = require('url-encode-decode')
 const fs = require('fs')
 const dayjs = require('dayjs')
+const { mainModule } = require('process')
 
 class ShodanAPI {
   constructor(accessToken) {
@@ -150,11 +151,10 @@ class ShodanAPI {
   }
 
   // 輸出檔案
-  async writeFile(servicePattern_Encode, facets) {
+  async writeFile(payloads) {
     try {
       this.Makedirs('files', { recursive: true })
-      const dataObject = await this.searchCustomization(servicePattern_Encode, facets)
-      await fs.promises.appendFile(`./files/${dayjs().format('YYYY-MM-DD')}.json`, JSON.stringify(dataObject))
+      await fs.promises.appendFile(`./files/${dayjs().format('YYYY-MM-DD')}.json`, JSON.stringify(payloads))
     } catch (err) {
       console.log(err)
     }
@@ -273,23 +273,27 @@ class ShodanAPI {
   }
 }
 
-const accessToken = process.env.ACCESS_TOKEN
-const shodanAPI = new ShodanAPI(accessToken)
+async function main() {
+  const accessToken = process.env.ACCESS_TOKEN
+  const shodanAPI = new ShodanAPI(accessToken)
+  
+  const servicePattern = ''
+  const servicePattern_Encode = encode(servicePattern)
+  const facets = '' // e.g. org,country:100
+  // shodanAPI.search(servicePattern_Encode, facets)
+  shodanAPI.writeFile(await shodanAPI.searchCustomization(servicePattern_Encode, facets))
+  
+  // const domain = '' // e.g. google.com
+  // shodanAPI.dnsInfo(domain)
+  
+  // const domains = '' // e.g. google.com,facebook.com use Comma-separated list of hostnames
+  // shodanAPI.dnsLookup(domains)
+  
+  // const ips = '' // e.g. 8.8.8.8,1.1.1.1
+  // shodanAPI.dnsReverseLookup(ips)
+  
+  // const tag = '' // e.g. ssh
+  // shodanAPI.searchQueries(tag)
+}
 
-const servicePattern = ''
-const servicePattern_Encode = encode(servicePattern)
-const facets = '' // e.g. org,country:100
-// shodanAPI.search(servicePattern_Encode, facets)
-shodanAPI.writeFile(servicePattern_Encode, facets)
-
-// const domain = '' // e.g. google.com
-// shodanAPI.dnsInfo(domain)
-
-// const domains = '' // e.g. google.com,facebook.com use Comma-separated list of hostnames
-// shodanAPI.dnsLookup(domains)
-
-// const ips = '' // e.g. 8.8.8.8,1.1.1.1
-// shodanAPI.dnsReverseLookup(ips)
-
-// const tag = '' // e.g. ssh
-// shodanAPI.searchQueries(tag)
+main()
